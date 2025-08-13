@@ -1,17 +1,3 @@
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
-async function getQuestions() {
-    const response = await fetch("https://opentdb.com/api.php?amount=10&difficulty=easy&type=multiple");
-    const questions = await response.json();
-    return questions;
-}
-
 const questionHeader = document.getElementById("question-header");
 const questionText = document.getElementById("question-text");
 const aButton = document.getElementById("a-button");
@@ -22,12 +8,13 @@ const result = document.getElementById("result");
 const finalScore = document.getElementById("final-score");
 const scoreMessage = document.getElementById("score-message");
 
+const numQuestions = 10;
 
 let numCorrect = 0;
 
 async function main() {
-    const game = await getQuestions();
-    const questions = game.results;
+    const questions = await getQuestions(numQuestions);
+
     for (let i = 0; i < questions.length; i++) {
         const element = questions[i];
         const question = element.question;
@@ -84,11 +71,11 @@ async function main() {
     }
     
     scoreMessage.innerHTML = ("Your final score: ")
-    finalScore.innerHTML = (numCorrect + "/10")
+    finalScore.innerHTML = (numCorrect + `/${numQuestions}`);
     
-    if (numCorrect > 8) {
+    if (numCorrect > numQuestions * 0.8) {
         finalScore.style.color = "green";
-    } else if (numCorrect > 5) {
+    } else if (numCorrect > numQuestions * 0.5) {
         finalScore.style.color = "yellow";
     } else {
         finalScore.style.color = "red";
@@ -96,3 +83,17 @@ async function main() {
 }
 
 main();
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+async function getQuestions(n) {
+    const response = await fetch(`https://opentdb.com/api.php?amount=${n}&difficulty=easy&type=multiple`);
+    const questions = await response.json();
+    return questions.results;
+}
